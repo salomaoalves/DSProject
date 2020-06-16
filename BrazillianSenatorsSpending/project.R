@@ -1,4 +1,4 @@
-setwd('/home/salomao/Desktop/BrazilianSenatorsSpending/')
+setwd('/home/salomao/Desktop/DSProject/BrazilianSenatorsSpending/')
 
 library(readr)
 library(stringr)

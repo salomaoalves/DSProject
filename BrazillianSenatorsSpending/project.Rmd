@@ -1,0 +1,291 @@
+---
+title: "Exploratory Analysis of Government Apending"
+author: "Salomão Alves"
+date: "June 8, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The purpose of this project is to analyze government spending during the months from January to October 2016. The purpose of this article is to have a general look at what senators spent, who spent a lot and the like.
+
+The analysis was made using the language R. First, we will perform the cleaning and transformation of the data and later the exploratory analysis. In the first part, the codes used will be visible, in the second, only the graphs and a brief explanation before each one about the insights that were taken from that graph.
+
+To install, enter the following command: install.packages('package'). We will use the packages below:
+  |  library(readr)
+  |  library(stringr)
+  |  library(plyr)
+  |  library(tidyr)
+  |  library(dplyr)
+  |  library(ggplot2)
+  |  library(grid)
+  |  library(gridExtra)
+    
+```{r, echo=FALSE}
+#suppressWarnings(expr)
+library(gridExtra)
+library(readr)
+library(stringr)
+library(dplyr)
+library(plyr)
+library(tidyr)
+library(ggplot2)
+library(grid)
+```
+
+
+## Load and Visualization the Data
+
+Be careful, the data set is in Portuguese, the most relevant information has been translated into English. Another point, when reading the data, the R does not decode very well, so some special characters do not appear, but don't worry, for the most essential information everything will be fine.
+```{r}
+df <- read.csv('datasets/2016.csv', sep=',',encoding='ISO-8859-1', header=T, stringsAsFactors=F)
+str(df)
+```
+
+## Data Munging
+Here, I will perform data cleaning. We will put the columns in English, take null values and the like. In the end, I'll call the str() function to see how the data looks.
+
+1 - Change the column name to english:
+```{r}
+df <- rename(df, Year=ANO, Month=MES, Senator=SENADOR, ExpenseType=TIPO_DESPESA,
+            EIN_SSN=CNPJ_CPF, Provider=FORNECEDOR, Document=DOCUMENTO, Date=DATA,
+            Details=DETALHAMENTO, Refunded=VALOR_REEMBOLSADO)
+```
+
+2 - Find and drop na values:
+```{r}
+sapply(df, function(x) sum(is.na(x)))
+df <- na.omit(df)
+```
+
+3 - Creat a column with the day of the week called dayWeek:
+```{r}
+df$Date <- as.Date(as.character(df$Date), format = "%d/%m/%Y")
+df$dayWeek <- as.character(weekdays(df$Date)) 
+days_pt <- c("segunda","terça","quarta","quinta","sexta","sábado","domingo") 
+days_en <- c("Mon","Tues","Wed","Thur","Fri","Sat","Sun")
+df$dayWeek <- as.factor(mapvalues(df$dayWeek, from=days_pt, to=days_en))
+```
+
+4 - Creat a column with the day called Day:
+```{r}
+df <- df %>%
+  separate(Date, into=c('Useless1','Useless2','Day'), sep='\\-')
+```
+
+5 - I'll drop out the column Year (same year) and Useless1/2:
+```{r}
+df['Year'] <- NULL
+df['Useless1'] <- NULL
+df['Useless2'] <- NULL
+```
+
+6 - Transformation some data to type factor:
+```{r}
+cols <- c('Month','Senator','ExpenseType','Day')
+for (i in 1:length(cols)){
+  df[,cols[i]] <- as.factor(df[,cols[i]])
+}
+```
+
+7 - Change the values in Expense Type to english:
+```{r}
+namePt <- c("Aluguel de im\xf3veis para escrit\xf3rio pol\xedtico, compreendendo despesas concernentes a eles.","Aquisi\xe7\xe3o de material de consumo para uso no escrit\xf3rio pol\xedtico, inclusive aquisi\xe7\xe3o ou loca\xe7\xe3o de software, despesas postais, aquisi\xe7\xe3o de publica\xe7\xf5es, loca\xe7\xe3o de m\xf3veis e de equipamentos. ","Contrata\xe7\xe3o de consultorias, assessorias, pesquisas, trabalhos t\xe9cnicos e outros servi\xe7os de apoio ao exerc\xedcio do mandato parlamentar","Divulga\xe7\xe3o da atividade parlamentar","Locomo\xe7\xe3o, hospedagem, alimenta\xe7\xe3o, combust\xedveis e lubrificantes","Passagens a\xe9reas, aqu\xe1ticas e terrestres nacionais","Servi\xe7os de Seguran\xe7a Privada")
+nameEn <- c("Rental of real estate for political office, including expenses related to them.","Purchase of consumables for use in the political office, including purchase or rental of software, postal charges, purchase of publications, rental of furniture and equipment.", "Hiring consultancies, advisory services, research, technical works and other services to support the exercise of parliamentary mandate.","Dissemination of parliamentary activity", "Locomotion, lodging, food, fuels and lubricants","National air, water and land tickets", "Private Security Services")
+df$ExpenseType <-mapvalues(df$ExpenseType, from=namePt, to=nameEn)
+```
+
+8 - Change some names (later, this will be useful):
+```{r}
+df$Senator <- mapvalues(df$Senator, 
+                        from=c("TELM\xc1RIO MOTA","JO\xc3O CAPIBERIBE","JOS\xc9 MEDEIROS",
+                               "ROMERO JUC\xc1","ROBERTO REQUI\xc3O", "L\xcdDICE DA MATA",
+                               "JOS\xc9 PIMENTEL", "F\xc1TIMA BEZERRA", "D\xc1RIO BERGER"), 
+                        to=c("TELMÁRIO MOTA","JOÃO CAPIBERIBE","JOSÉ MEDEIROS",
+                             "ROMERO JUCÁ","ROBERTO REQUIÃO","LÍDICE DA MATA",
+                             "JOSÉ PIMENTEL","FÁTIMA BEZERRA","DÁRIO BERGER"))
+```
+
+9 - Replace all ',' to '.' in the column Refunded:
+```{r}
+for (j in 1:nrow(df)){
+  for (i in 1:str_length(df[j,'Refunded'])){
+    if (str_sub(df[j,'Refunded'],start=i,end=i) == ','){
+      str_sub(df[j,'Refunded'],start=i,end=i) = '.'
+    }
+  }
+}
+```
+
+10 - Transformation Refunded to type numeric:
+```{r}
+df$Refunded <- as.numeric(df[,'Refunded'])
+```
+
+11 - See data:
+```{r, echo=FALSE}
+str(df)
+```
+
+## Data Analysis and Exploration
+Here we will take some information from the data. There will be 7 sets of code, where the visual and written presentation of the data will be made.
+
+  1 - Statistical summary
+  
+  |    There are two types of variables here, quantitative and qualitative.
+       Regarding quantitative, there is the Refunded feature. The reimbursement of candidates has an average of 894.15 reais, with the extreme values of 0.01 and 444500.00 and a median of 314.71 reais.
+       
+  |    Regarding qualitative, there are four features: Month, Senator, Day and dayWeek. They tell us how often each data appears. Briefly, the most frequent day is the day 01; the month would be 06; the senator would be Wellington Fagundes; and the day of the week would be on Monday.
+```{r resume, echo=FALSE}
+cols <- c("Senator","Refunded","dayWeek")
+summary(df[,cols])
+```
+
+  2 - Frenquecy of spending per...
+  
+  |    Here, we will see the graphical form of the previously observed qualitative variables - Senator, Day, Month and dayWeek.
+```{r, echo=FALSE}
+dt <- df %>%
+  count(Senator) %>%
+  filter(n>300)
+g1 <- ggplot(dt, aes(x=Senator)) + ggtitle("Spend Frequency per Senator (Top 25)") + 
+  xlab("Senator") + geom_bar(stat="identity", aes(y=n)) + ylab("Number #") + theme_light() +
+  coord_flip()
+g2 <- ggplot(df, aes(Month)) + ggtitle("Spend Frequency per Month") + xlab("Month") +
+  geom_histogram(stat = "count", width = 0.5) + ylab("Number #") + theme_light()
+dt <- df
+levels=c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
+dt$dayWeek <- factor(dt$dayWeek, levels=levels, ordered=TRUE)
+g3 <- ggplot(dt, aes(x=dayWeek)) + ggtitle("Spend Frequency per Day of the Week") + 
+  ylab("Number #") + xlab("Day of the Week") + geom_histogram(stat="count", width = 0.5) + 
+  theme_light()
+g4 <- ggplot(df, aes(x=Day)) + ggtitle("Spend Frequency per Day") + xlab("Day") +
+  geom_histogram(stat = "count", width = 0.5) + ylab("Number #") + theme_light()
+g1
+g2
+g3
+g4
+```
+
+  3 - Spend Overrall:
+  
+  |    In this set, we will see three graphs. Making a relationship between the refund amount and three other features - dayWeek, Month and Expense Type.
+      
+  |    3.1 - dayWeekxRefunded:
+            
+```{r, echo=FALSE}
+dt <- df %>%
+  select(dayWeek,Refunded) %>%
+  group_by(dayWeek) %>%
+  summarise(Spend = round(sum(Refunded)/1000000,2)) %>%
+  arrange(match(dayWeek,c("Monday","Tuesday","Wednesday",
+                          "Thursday","Friday","Saturday","Sunday")))
+levels=c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
+dt$dayWeek <- factor(dt$dayWeek, levels=levels, ordered=TRUE)
+gd <- ggplot(data=dt, aes(x=dayWeek,y=Spend, group=1)) + ggtitle("Spend Evolution during Days of the Week") + xlab("Day of the Week") + geom_point() + geom_line() + theme_light()
+gd
+```
+      3.2 - MonthxRefunded:
+      
+```{r pressure, echo=FALSE}
+dt <- df %>%
+  select(Month,Refunded) %>%
+  group_by(Month) %>%
+  summarise(Spend = round(sum(Refunded)/1000000,2))
+gm <- ggplot(data=dt, aes(x=Month,y=Spend, group=1)) + geom_point() + geom_line() +
+  ggtitle("Spend Evolution during Months") + xlab("Months") + theme_minimal()
+gm
+```
+      3.3 - ExpenseTypexRefunded:
+
+```{r, echo=FALSE}
+dt <- df %>%
+  select(ExpenseType,Refunded) %>%
+  group_by(ExpenseType) %>%
+  summarise(Spend = round(sum(Refunded)/1000000,2)) %>%
+  mutate(Legend=factor(c('1','2','3','4','5','6','7')))
+ggplot(data = dt, aes(x=Legend,y=Spend, group=1)) + ggtitle("Spends per Expense Type") +
+  xlab("Expense Type") + geom_point() + geom_line() + theme_light()
+```
+```{r, echo=FALSE}
+for (i in c('1','2','3','4','5','6','7')){
+  print(paste(dt[i,]$Legend, dt[i,]$ExpenseType, sep=' - '))
+}
+```
+
+4 - Top 5 Spenders:
+
+   |  Here, we can see the Top 10 Senators who had the most reimbursement. Our champion in spending is Senator Paulo Rocha, later I will make a more detailed analysis about him. Followed by Randolfe Rodrigues and Telmário Mota.
+```{r, echo=FALSE}
+dt <- df %>%
+  select(Senator,Refunded) %>%
+  group_by(Senator) %>%
+  summarise(Spend = round(sum(Refunded)/1000,2)) %>%
+  arrange(desc(Spend)) %>% head(10)
+ggplot(dt, aes(Senator,Spend)) + ggtitle("Top 5 Spenders") + xlab("Senator") +
+  geom_bar(stat="identity") + ylab("R$") + theme_light() + coord_flip()
+```
+  
+5 - Boxplot/Vilion to Top 5 Spenders:
+
+  |   In this topic, we will see the boxplots and villains of the top 5 senators who spent the most. We only took 5 to better visualize the graphics. We realized that there are a lot of outliers, in a possible future project, analyzing these outliers would be interesting.
+```{r, echo=FALSE}
+dt <- df %>%
+  select(Senator,Refunded) %>%
+  filter(Senator == "PAULO ROCHA" | Senator == "RANDOLFE RODRIGUES" | 
+         Senator == "TELMÁRIO MOTA" | Senator == "ROBERTO ROCHA" | 
+         Senator == "JOÃO CAPIBERIBE")
+ggplot(dt,aes(Senator,Refunded)) + geom_boxplot() + ggtitle('Boxplot') + theme_light()
+```
+```{r, echo=FALSE}
+ggplot(dt,aes(Senator,Refunded)) + geom_violin(scale="area") + ggtitle('Violin') +  theme_light()
+```  
+
+6 - Analysing Top 1 Spender (Paulo Rocha):
+
+   |  Let's take a closer look at our spender, Mr. Paulo Rocha. First, when we look at the type of expense it generates, we see that it is concentrated in three different types (1, 5 and 6). In order not to pollute the graph too much, the legend for the x-axis will be below.
+```{r, echo=FALSE}
+dt <- df %>%
+  select(Month:dayWeek) %>%
+  filter(Senator == "PAULO ROCHA")
+
+dt1 <- dt %>%
+  select(ExpenseType,Refunded) %>%
+  group_by(ExpenseType) %>%
+  summarise(Spend = round(sum(Refunded)/1000,2))%>%
+  mutate(Legend=factor(c('1','2','3','4','5','6')))
+ggplot(dt1, aes(Legend,Spend)) + ggtitle("Expense Type of Paulo Rocha") + 
+  xlab("ExpenseType") + geom_bar(stat="identity") + ylab("R$") + theme_light()
+```
+```{r, echo=FALSE}
+for (i in c('1','2','3','4','5','6')){
+  print(paste(dt1[i,]$Legend, dt1[i,]$ExpenseType, sep=' - '))
+}
+```
+      When we look at the evolution of spending over the months, we notice that the Senator line is similar to the general line. We see only a bigger drop from month 3 to 5, in addition to not increasing from month 1 to 2.
+```{r, echo=FALSE}
+dt1 <- dt %>%
+  select(Month,Refunded) %>%
+  group_by(Month) %>%
+  summarise(Spend = round(sum(Refunded)/1000,2))
+gm2 <- ggplot(dt1, aes(x=Month,y=Spend, group=1)) + ggtitle("Evolution during the months (Senator)") + xlab("Months") + geom_point() + geom_line() + theme_light()
+grid.arrange(gm2, gm, ncol=2)
+```
+      Finally, we noticed that the variance of the senator's expenses during the days of the week is much greater than the general one.      
+```{r, echo=FALSE}
+dt1 <- dt %>%
+  select(dayWeek,Refunded) %>%
+  group_by(dayWeek) %>%
+  summarise(Spend = round(sum(Refunded)/1000,2)) %>%
+  arrange(match(dayWeek,c("Monday","Tuesday","Wednesday",
+                          "Thursday","Friday","Saturday","Sunday")))
+levels=c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
+dt1$dayWeek <- factor(dt1$dayWeek, levels=levels, ordered=TRUE)
+gd2 <- ggplot(dt1, aes(x=dayWeek,y=Spend, group=1)) + ggtitle("Evolution during the days") + 
+  xlab("Days of the Week") + geom_point() + geom_line() + theme_light()
+grid.arrange(gd2, gd, ncol=2)
+```
