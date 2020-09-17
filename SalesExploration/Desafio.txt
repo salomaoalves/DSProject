@@ -1,0 +1,38 @@
+Dataset: client.csv - 1299 records
+
+FIELDS::
+cod_client = client code
+date_register = registration date (year, month, day format - yyyymmdd - string type)
+date_first_buy = date of the first purchase (format year, month, day - yyyymmdd - string type)
+state = state
+city = city
+
+-------------------------------------------------- -------------------------------------------------- ---------------
+
+Dataset: sales.csv - 104078 records
+
+FIELDS:
+cod_cliente = client code
+cod_product = product code
+date_sales = date of sale (year, month, day format - yyyymmdd - string type)
+qty_product = quantity of product sold
+sale_value = total sale value
+
+Note: data extracted from January 2018 to May 2020
+
+-------------------------------------------------- -------------------------------------------------- ---------------
+
+Challenge: Exploratory Data Analysis
+
+It consists of carrying out an exploratory analysis of the data and answering the following questionnaire:
+
+1 - What are the top 10 most and least sold products in 2018, 2019 and 2020?
+2 - What are the months with the highest and lowest revenue for the entire period?
+3 - What are the months with the highest and lowest revenue in 2018, 2019 and 2020?
+4 - What are the top 3 customers who buy more and less in sales? (Take into account the sale value and not the sales amount)
+5 - Which are the top 3 customers who buy more and less in quantity of purchases? (Take into account the quantity of sales and not the billing)
+6 - What is the average amount of sales per sale in 2018, 2019 and 2020? (total value of the year / sales figures)
+7 - What are the months with the highest and lowest average sales per year in 2018, 2019 and 2020? (total value of month / sales figures)
+8 - What is the quarter with the highest revenue for the entire period? (quarter consists of the grouping of months (Jan, Feb, Mar), (May, Apr, Jun), (Jul, Aug, Sep), (Oct, Nov, Dec))
+9 - In which month of the whole period was there the biggest sale of DISTINCT products? (distinct product codes)
+10 - In which quarter was the lowest sale of DISTINCT products? (distinct product codes)
