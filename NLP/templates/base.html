@@ -1,0 +1,19 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>NLP Project</title>
+</head>
+<body>
+    {% block topo %}
+    <img src={{logo_url}} width="50" height="50">
+    <a href="{{ url_for('begin') }}">Go Home!</a>
+    <br />
+    <br />
+    {% endblock %}
+
+    {% block content%}<!-- page content -->{% endblock%}
+</body>
+</html>

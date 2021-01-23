@@ -1,0 +1,49 @@
+VM
+cd /media/ #shared folders
+cp -R /dir /path_dir #copy from shared folder (/dir) to local system (/path_dir)
+chown -R usr:usr /path_dir #change path_dir owner
+
+jps #aparece os nodes
+mr-jobhistory-daemon.sh start historyserver #inicia o history server (para fazer o store do pig)
+
+HDFS
+
+start-dfs.sh #start o hdfs
+stop-dfs.sh #stop o hdfs
+hdfs dfs #acessar o hdfs
+
+hdfs dfs -ls / #list forlder
+hdfs dfs -mkdir /nome_folder #creat folder
+hdfs dfs -put path_source/arq1 /path_destiny #load arq1 into hdfs (path_destiny)
+python arq.py hdfs://path_dataset -r hadoop #execute hadoop job (in arq.py), using dataset in hdfs (hdfs://path_dataset), using hadoop cluste (-r haddop)
+
+YARN
+
+start-yarn.sh #start o yarn
+stop-yarn.sh #stop o yarn
+
+HBASE
+start-hbase.sh #start o hbase
+stop-hbase.sh #stop o hbase
+hbase shell #abre o shell do hbase
+
+PIG
+
+pig -x mapreduce #conecta o pig no mapreduce (acessa os arquivos no hdfs)
+pig -x local #conecta o pig no local (acessa os arquivos locais)
+
+# carrega os dados
+data = LOAD 'tablename' USING PigStorage(',') AS ( #, separa as colunas (pde mudar)
+	nome:chararray,
+	idade:int,
+	nome_col:type_col
+);
+
+# guarda os dados no hbase
+STORE data INTO 'hbase://path' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+	nome:chararray,
+	idade:int,
+	nome_col:type_col
+);
+
+dump data; #mostra os dados

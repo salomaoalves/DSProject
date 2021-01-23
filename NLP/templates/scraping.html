@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" id="form" action="/youtube">
+
+    <div class="form-group">
+      <label for="exampleInputEmail1">{{ first_input }}
+        <input type="text" name="url">
+      </label>
+    </div>
+    
+    <div class="form-group">
+      <label for="exampleInputEmail1">Enter number of iterations*: 
+        <input type="text" name="number">
+      </label>
+    </div>
+    <button type="submit" onclick="showImg()" class="btn btn-primary">ENTER</button>
+    
+    <br />
+    {{ obs }}
+    
+    <div class="justify-content-md-center" id="loading" style="display:none;">
+      <div class="row justify-content-md-center"><img src="/static/loading.gif" alt=""  width="200" /></div>  
+      <div class="row justify-content-md-center" style="color:grey;">Acessando os comentários...</div>
+    </div>
+
+    <script>
+      function showImg() {
+        document.getElementById('loading').style.display = "block";
+      }
+    </script>
+
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" id="form" action="/">
+    <ul>
+        <li><a href="{{ url_for('youtube') }}">1 - Youtube Comments</a></li>
+        <li><a href="{{ url_for('insta') }}">2 - Instagram Post</a></li>
+        <li><a href="{{ url_for('upload') }}">3 - Upload .txt file</a></li>
+        <li><a href="{{ url_for('default') }}">4 - Default (Lorem Ipsum)</a></li>
+    </ul> 
+    
+</form>
+{% endblock %}
