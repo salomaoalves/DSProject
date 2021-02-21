@@ -40,6 +40,7 @@ def show_yt():
         url = 'https://www.' + url
 
     lista = yt_scrap(url,n)
+    #chamar função nlp
     return str(len(lista))+'--------'+str(lista)
 
 
@@ -69,6 +70,7 @@ def show_insta():
         url = 'https://www.' + url
 
     lista = insta_scrap(url, n)
+    #chamar função nlp
     return str(len(lista))+'--------'+str(lista)
 
 
@@ -92,6 +94,7 @@ def show_upload():
                                 err_description='Please check the file again and try again.', go_back=url_for('upload'))
     file_path = current_app.config['MEDIA_ROOT']+'/'+filename
     lista = read_file(file_path)
+    #chamar função nlp
     return str(lista)
 
 
@@ -99,6 +102,7 @@ def show_upload():
 def default():
     file_path = current_app.config['MEDIA_ROOT']+'/default.txt'
     lista = read_file(file_path)
+    #chamar função nlp
     return str(lista)
 
 @app.route("/default", methods=['POST'])

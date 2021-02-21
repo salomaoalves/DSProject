@@ -15,6 +15,9 @@ def read_file(path):
     return lista
 
 def yt_scrap(url, n):
+    '''Scraping YouTube videos comments
+        url: video url; n: number of interation'''
+    
     data=[]
     options = Options()
     options.add_argument('--headless')
@@ -28,10 +31,13 @@ def yt_scrap(url, n):
 
         for comment in wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#content"))):
             data.append(comment.text)
-    return data[3:]
+    return data[3:] #retirar informações adicionais
 
 
 def insta_scrap(url, n):
+    '''Scraping Instagram post comments.
+        url: post url; n: number of interation'''
+
     data, i = [], 0
     options = Options()
     options.add_argument('--headless')
