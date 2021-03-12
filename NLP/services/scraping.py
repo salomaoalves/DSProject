@@ -31,7 +31,7 @@ def yt_scrap(url, n):
 
         for comment in wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#content"))):
             data.append(comment.text)
-    return data[3:] #retirar informações adicionais
+    return data[3:] # drop extra information
 
 
 def insta_scrap(url, n):
@@ -56,4 +56,4 @@ def insta_scrap(url, n):
         for comment in wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "C4VMK"))):
             data.append(comment.text.split('\n')[1])
 
-    return data[1:] #retirar a legenda
+    return data[1:] #drop legend

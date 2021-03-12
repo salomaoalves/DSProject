@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+{% block content %}
+
+<h2 class="section-subtitle">Sub Títulos</h2>
+<div class="chart-example" id="chart-01"></div>
+<script>
+    var data = ['a', 'b', 'c'];
+    // Definindo um container
+    d3.select('#chart-01').selectAll('div.data-item')
+        .data(data)
+        .enter()
+        .append('div')
+        .attr('class', 'data-item')
+        .append('p')
+        .html(function(d) { return d; });
+</script>
+
+{% endblock %}
