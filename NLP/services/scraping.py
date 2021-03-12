@@ -2,7 +2,7 @@ import instaloader
 
 import time
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import Chrome, Firefox
+from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -18,7 +18,7 @@ def yt_scrap(url, n):
     '''Scraping YouTube videos comments
         url: video url; n: number of interation'''
     
-    data=[]
+    data = []
     options = Options()
     options.add_argument('--headless')
     with Chrome('chromedriver', options=options) as driver:

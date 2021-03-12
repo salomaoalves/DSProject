@@ -8,15 +8,9 @@ import string
 import unidecode
 import math
 
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-
 # load dic in spacy session
-
-# for jupyter
-#!python -m spacy download pt_core_news_sm
-# for vscode
-nlp = spacy.load("pt_core_news_sm")
+nlp = spacy.load("pt_core_news_sm") # for vscode
+#!python -m spacy download pt_core_news_sm # for jupyter
 
 # How to load pos_tag in pt-br -- you should have the file POS_tagger_brill.pkl downloaded 
 # https://github.com/inoueMashuu/POS-tagger-portuguese-nltk/tree/master/trained_POS_taggers
@@ -24,6 +18,8 @@ import joblib
 pos_tag_pt = joblib.load('POS_tagger_brill.pkl')
 
 # list of stopwords
+nltk.download('stopwords')
+from nltk.corpus import stopwords
 stopwords = set(stopwords.words('portuguese'))
 
 def run(commen):
@@ -46,7 +42,7 @@ def run(commen):
     df_trigram = trigram(new_comen)
     df_frequency = all_ngram(df_unagram,df_bigram,df_trigram,15)
 
-    #get TF-IDF
+    # get TF-IDF
     dic_tf_idf = tf_idf(new_comen, commen, 'anos')
 
     # delete spaces and stopwords
@@ -172,10 +168,6 @@ def tf_idf(comments_token, comments_phrases, t):
     freq_table = pd.DataFrame({'anagram_frequency': df[0].value_counts().values},
                               index = df[0].value_counts().index)
 
-    #cada comentario é um documento (tf)
-    #todos os comentarios são 1 documento (df/idf)
-    # add essas observações na web #
-
     # metrics
     tf = int(freq_table.loc[t])/d 
     df = 0 
@@ -184,20 +176,7 @@ def tf_idf(comments_token, comments_phrases, t):
             df += 1
     idf = math.log(n/df) 
     tf_idf = tf*idf
+
     return {'tf':np.round(tf,4), 'df':np.round(df,4), 
-            'idf':np.round(idf,4), 'tf_idf':np.round(tf_idf,4)}
-
-
-co = ['Oi\nBoa tarde e um ótimo domingo.\nQueria saber como faço para baixar o aplicativo. Tenho uma área é estou pensando em plantar. Minha área é de 220 equitares é já vem sendo cultivada por mais de 10 anos através de arrendamento. Mais estou criando coragem para eu mesmo plantar. Mais não tenho esperiencia no ramo. Queria ver se posso ter um acompanhamento tequinico para me assessorar nessa impreitada. Estava assistindo o Manual do Operador com o Allan é ele fez a propaganda deste canal de informações entre produtores. Desde já muito obrigado.', '']
-gram = run(co)
-print(gram[0])
-print('-----------------------------------------------------------')
-print(gram[1])
-print('-----------------------------------------------------------')
-print(gram[2])
-print('-----------------------------------------------------------')
-print(gram[3])
-print('-----------------------------------------------------------')
-print(gram[4])
-print('-----------------------------------------------------------')
-print(gram[5])
+            'idf':np.round(idf,4), 'tf_idf':np.round(tf_idf,4),
+            'obs': "Cada comentario é um documento (tf); Todos os comentarios são 1 documento (df/idf)"}

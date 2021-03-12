@@ -2,7 +2,8 @@ import os
 import re
 from flask import Flask, render_template, request, url_for, current_app
 from werkzeug import secure_filename
-from services.scraping import read_file,yt_scrap, insta_scrap
+from services.scraping import read_file, yt_scrap, insta_scrap
+from services.nlp import run
 
 app = Flask("nlp")
 
@@ -40,8 +41,8 @@ def show_yt():
         url = 'https://www.' + url
 
     lista = yt_scrap(url,n)
-    #chamar função nlp
-    return str(len(lista))+'--------'+str(lista)
+    lista = run(lista)
+    return str(lista)
 
 
 @app.route("/insta", methods=['GET'])
